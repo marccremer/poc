@@ -1,8 +1,7 @@
 <template>
   <div>
-    <h1>Worker Example</h1>
-
-    <MandelCanvasWorker></MandelCanvasWorker>
+    <h1>Singel Example</h1>
+    <MandelCanvas></MandelCanvas>
   </div>
 </template>
 
