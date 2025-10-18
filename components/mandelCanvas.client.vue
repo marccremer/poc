@@ -1,16 +1,13 @@
 <template>
+
   <v-card class="pa-4" elevation="4" rounded="xl">
     <v-card-title>Mandelbrot Set ({{ width }}×{{ height }}, {{ tilesPerRow * tilesPerRow }} tiles)</v-card-title>
     <v-card-text>
       <v-row>
-        <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" id="gif" width="200" />
-        <canvas
-          ref="canvasRef"
-          :width="width"
-          :height="height"
-          class="d-block mx-auto"
-          style="border-radius: 8px; border: 1px solid #444"
-        ></canvas>
+        <canvas ref="canvasRef" :width="width" :height="height" class="d-block mx-auto"
+          style="border-radius: 8px; border: 1px solid #444"></canvas>
+        <v-list :items="items" item-title="name" item-value="id">
+        </v-list>
       </v-row>
     </v-card-text>
     <v-card-actions>
@@ -26,12 +23,25 @@ import { computeMandelbrotTile } from "~/shared/mandelbrot";
 
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 const isRendering = ref(false);
-
+const items = [
+  {
+    name: 'Item #1',
+    id: 1,
+  },
+  {
+    name: 'Item #2',
+    id: 2,
+  },
+  {
+    name: 'Item #3',
+    id: 3,
+  },
+]
 const width = 600;
 const height = 600;
-const tilesPerRow = 10; // 10×10 = 100 tiles
+const tilesPerRow = 100; // 10×10 = 100 tiles
 const tileSize = width / tilesPerRow;
-const maxIterations = 5000;
+const maxIterations = 50000;
 
 // Mandelbrot region state
 const xMin = ref(-2.4);
@@ -54,7 +64,8 @@ function iterationToColor(iter: number, maxIter: number): [number, number, numbe
   return [f(0), f(8), f(4)];
 }
 
-async function renderMandelbrot() {
+function renderMandelbrot() {
+
   if (!canvasRef.value) return;
   isRendering.value = true;
   const ctx = canvasRef.value.getContext("2d")!;
@@ -83,32 +94,33 @@ async function renderMandelbrot() {
     }
   }
 
-  const tiles = await Promise.all(jobs);
+  Promise.all(jobs).then((tiles) => {
 
-  for (let i = 0; i < tiles.length; i++) {
-    const tx = i % tilesPerRow;
-    const ty = Math.floor(i / tilesPerRow);
-    const tile = tiles[i];
+    for (let i = 0; i < tiles.length; i++) {
+      const tx = i % tilesPerRow;
+      const ty = Math.floor(i / tilesPerRow);
+      const tile = tiles[i];
 
-    for (let py = 0; py < tile.imageHeight; py++) {
-      for (let px = 0; px < tile.imageWidth; px++) {
-        const iter = tile.data[py * tile.imageWidth + px];
-        const [r, g, b] = iterationToColor(iter, maxIterations);
+      for (let py = 0; py < tile.imageHeight; py++) {
+        for (let px = 0; px < tile.imageWidth; px++) {
+          const iter = tile.data[py * tile.imageWidth + px];
+          const [r, g, b] = iterationToColor(iter, maxIterations);
 
-        const globalX = tx * tileSize + px;
-        const globalY = ty * tileSize + py;
-        const idx = (globalY * width + globalX) * 4;
+          const globalX = tx * tileSize + px;
+          const globalY = ty * tileSize + py;
+          const idx = (globalY * width + globalX) * 4;
 
-        imageData.data[idx] = r;
-        imageData.data[idx + 1] = g;
-        imageData.data[idx + 2] = b;
-        imageData.data[idx + 3] = 255;
+          imageData.data[idx] = r;
+          imageData.data[idx + 1] = g;
+          imageData.data[idx + 2] = b;
+          imageData.data[idx + 3] = 255;
+        }
       }
     }
-  }
 
-  ctx.putImageData(imageData, 0, 0);
-  isRendering.value = false;
+    ctx.putImageData(imageData, 0, 0);
+    isRendering.value = false;
+  });
 }
 
 // Zoom into the center of the current view by  factor 2
@@ -130,5 +142,25 @@ function zoom(factor = 0.9) {
 <style scoped>
 canvas {
   image-rendering: pixelated;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #ccc;
+  /* light gray border */
+  border-top-color: #3498db;
+  /* blue top */
+  border-radius: 50%;
+  /* make it round */
+  animation: spin 1s linear infinite;
+  margin: 50px auto;
+  /* center horizontally */
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>

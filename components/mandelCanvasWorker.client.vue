@@ -1,16 +1,13 @@
 <template>
+
   <v-card class="pa-4" elevation="4" rounded="xl">
     <v-card-title>Mandelbrot Set ({{ width }}×{{ height }}, {{ tilesPerRow * tilesPerRow }} tiles)</v-card-title>
     <v-card-text>
       <v-row>
-        <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" id="gif" width="200" />
-        <canvas
-          ref="canvasRef"
-          :width="width"
-          :height="height"
-          class="d-block mx-auto"
-          style="border-radius: 8px; border: 1px solid #444"
-        ></canvas>
+        <canvas ref="canvasRef" :width="width" :height="height" class="d-block mx-auto"
+          style="border-radius: 8px; border: 1px solid #444"></canvas>
+        <v-list :items="items" item-title="name" item-value="id">
+        </v-list>
       </v-row>
     </v-card-text>
     <v-card-actions>
@@ -18,6 +15,7 @@
       <v-btn color="secondary" @click="zoom" :loading="isRendering"> Zoom </v-btn>
     </v-card-actions>
   </v-card>
+
 </template>
 
 <script lang="ts" setup>
@@ -30,12 +28,25 @@ const createWorker = () => new MyWorker();
 const worker = createDispatcher<WorkerEventMap>(createWorker);
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 const isRendering = ref(false);
-
+const items = [
+  {
+    name: 'Item #1',
+    id: 1,
+  },
+  {
+    name: 'Item #2',
+    id: 2,
+  },
+  {
+    name: 'Item #3',
+    id: 3,
+  },
+]
 const width = 600;
 const height = 600;
 const tilesPerRow = 10; // 10×10 = 100 tiles
 const tileSize = width / tilesPerRow;
-const maxIterations = 5000;
+const maxIterations = 50000;
 
 // Mandelbrot region state
 const xMin = ref(-2.4);
